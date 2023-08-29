@@ -10,6 +10,11 @@
       "StackName": "amplify-commentmoderation-dev-134522",
       "StackId": "arn:aws:cloudformation:us-east-1:741094476554:stack/amplify-commentmoderation-dev-134522/d4579330-4693-11ee-aba6-12044b827ce5",
       "AmplifyAppId": "ddokmnrcn3de"
+    },
+    "categories": {
+      "function": {
+        "CommentAnalyzer": {}
+      }
     }
   }
 }

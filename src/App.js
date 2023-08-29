@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { DataStore } from "@aws-amplify/datastore";
-import { Predicates } from "@aws-amplify/datastore";
 import { listComments } from './graphql/queries';
+import { createComment } from './graphql/mutations';
+import { onUpdateComment } from './graphql/subscriptions';
 
-import { Amplify, API, Auth, graphqlOperation, Storage } from "aws-amplify";
+import { Amplify, API, graphqlOperation } from "aws-amplify";
 import { Comment } from './models';
 import awsconfig from './aws-exports';
 
@@ -16,30 +16,41 @@ function App() {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-          const commentsData = await API.graphql(graphqlOperation(listComments, {
-              filter: {
-                  publish: {
-                      eq: true
-                  }
-              }
-          }));
-  
-          if (commentsData.data.listComments) {
-              setAllComments(commentsData.data.listComments.items);
+        const commentsData = await API.graphql(graphqlOperation(listComments, {
+          filter: {
+            publish: {
+              eq: true
+            }
           }
-      } catch (err) {
-          console.error("Error fetching comments: ", err);
-      }
-  };
-  
+        }));
 
-    const subscription = DataStore.observe(Comment).subscribe(msg => {
-      fetchComments();
-    });
+        if (commentsData.data.listComments) {
+          setAllComments(commentsData.data.listComments.items);
+        }
+      } catch (err) {
+        console.error("Error fetching comments: ", err);
+      }
+    };
 
     fetchComments();
 
-    return () => subscription.unsubscribe();
+    const subscription = API.graphql(graphqlOperation(onUpdateComment)).subscribe({
+      next: (eventData) => {
+        const updatedComment = eventData.value.data.onUpdateComment;
+        if (updatedComment.publish) {
+          setAllComments(prevComments => [...prevComments, updatedComment]);
+        }
+      }
+    });
+
+    const intervalId = setInterval(() => {
+      fetchComments();
+    }, 5000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearInterval(intervalId);
+    };
   }, []);
 
   const handleInputChange = (e) => {
@@ -48,12 +59,12 @@ function App() {
 
   const submitComment = async () => {
     try {
-      await DataStore.save(
-        new Comment({
-          "comment": comment,
-          "publish": true // Will be updated by your Lambda function
-        })
-      );
+      const commentData = {
+        comment: comment,
+        publish: false
+      };
+
+      await API.graphql(graphqlOperation(createComment, { input: commentData }));
     } catch (err) {
       console.error("Error submitting comment: ", err);
     }
@@ -62,13 +73,13 @@ function App() {
   return (
     <div className="App">
       <h1>Video Broadcast</h1>
-      <div>Video Player Here</div>
-      
-      <h2>Submit your comment:</h2>
+      <div>Video Player</div>
+
+      <h2>Submit comment:</h2>
       <input type="text" value={comment} onChange={handleInputChange} />
       <button onClick={submitComment}>Submit</button>
-      
-      <h2>Approved Comments:</h2>
+
+      <h2>Comments:</h2>
       <ul>
         {allComments.map((item) => (
           <li key={item.id}>{item.comment}</li>
