@@ -1,11 +1,46 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import "@aws-amplify/ui-react/styles.css"; // default theme
-// import awsconfig from './aws-exports';
-// Amplify.configure(awsconfig);
+import React, { useState, useEffect } from 'react';
+import { DataStore } from "@aws-amplify/datastore";
+import { Predicates } from "@aws-amplify/datastore";
+import { listComments } from './graphql/queries';
+
+import { Amplify, API, Auth, graphqlOperation, Storage } from "aws-amplify";
+import { Comment } from './models';
+import awsconfig from './aws-exports';
+
+Amplify.configure(awsconfig);
+
 function App() {
   const [comment, setComment] = useState('');
-  const [isCommentApproved, setIsCommentApproved] = useState(null);
+  const [allComments, setAllComments] = useState([]);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+          const commentsData = await API.graphql(graphqlOperation(listComments, {
+              filter: {
+                  publish: {
+                      eq: true
+                  }
+              }
+          }));
+  
+          if (commentsData.data.listComments) {
+              setAllComments(commentsData.data.listComments.items);
+          }
+      } catch (err) {
+          console.error("Error fetching comments: ", err);
+      }
+  };
+  
+
+    const subscription = DataStore.observe(Comment).subscribe(msg => {
+      fetchComments();
+    });
+
+    fetchComments();
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleInputChange = (e) => {
     setComment(e.target.value);
@@ -13,10 +48,14 @@ function App() {
 
   const submitComment = async () => {
     try {
-      const response = await axios.post('https://your-api-gateway-url/comments', { comment });
-      setIsCommentApproved(response.data.approved);
-    } catch (error) {
-      console.error('An error occurred while submitting the comment:', error);
+      await DataStore.save(
+        new Comment({
+          "comment": comment,
+          "publish": true // Will be updated by your Lambda function
+        })
+      );
+    } catch (err) {
+      console.error("Error submitting comment: ", err);
     }
   };
 
@@ -29,11 +68,12 @@ function App() {
       <input type="text" value={comment} onChange={handleInputChange} />
       <button onClick={submitComment}>Submit</button>
       
-      {isCommentApproved !== null && (
-        isCommentApproved
-          ? <p>Your comment has been approved!</p>
-          : <p>Your comment was not approved.</p>
-      )}
+      <h2>Approved Comments:</h2>
+      <ul>
+        {allComments.map((item) => (
+          <li key={item.id}>{item.comment}</li>
+        ))}
+      </ul>
     </div>
   );
 }

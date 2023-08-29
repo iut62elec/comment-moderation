@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-commentmoderation-dev-134522-authRole",
+      "UnauthRoleArn": "arn:aws:iam::741094476554:role/amplify-commentmoderation-dev-134522-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::741094476554:role/amplify-commentmoderation-dev-134522-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-commentmoderation-dev-134522-deployment",
+      "UnauthRoleName": "amplify-commentmoderation-dev-134522-unauthRole",
+      "StackName": "amplify-commentmoderation-dev-134522",
+      "StackId": "arn:aws:cloudformation:us-east-1:741094476554:stack/amplify-commentmoderation-dev-134522/d4579330-4693-11ee-aba6-12044b827ce5",
+      "AmplifyAppId": "ddokmnrcn3de"
+    }
+  }
+}
