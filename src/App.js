@@ -7,16 +7,15 @@ import { onUpdateComment } from './graphql/subscriptions';
 import { deleteComment } from './graphql/mutations';
 
 import { Amplify, API, graphqlOperation, Auth } from "aws-amplify";
-import { Comment } from './models';
 import awsconfig from './aws-exports';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
+
 Amplify.configure(awsconfig);
 
 function App() {
   const [comment, setComment] = useState('');
   const [allComments, setAllComments] = useState([]);
-  const [username, setUsername] = useState('Unknown');
 
   // YouTube video options
   const videoOptions = {
@@ -28,12 +27,6 @@ function App() {
   };
 
   useEffect(() => {
-    // Fetch the authenticated user's information
-  Auth.currentAuthenticatedUser()
-  .then(user => setUsername(user.username))
-  .catch(err => console.log("Not authenticated: ", err));
-
-
     const fetchComments = async () => {
       try {
         const commentsData = await API.graphql(graphqlOperation(listComments, {
@@ -45,7 +38,8 @@ function App() {
         }));
 
         if (commentsData.data.listComments) {
-          setAllComments(commentsData.data.listComments.items);
+          const sortedComments = commentsData.data.listComments.items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          setAllComments(sortedComments);
         }
       } catch (err) {
         console.error("Error fetching comments: ", err);
@@ -58,18 +52,13 @@ function App() {
       next: (eventData) => {
         const updatedComment = eventData.value.data.onUpdateComment;
         if (updatedComment.publish) {
-          setAllComments(prevComments => [...prevComments, updatedComment]);
+          setAllComments(prevComments => [...prevComments, updatedComment].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
         }
       }
     });
 
-    const intervalId = setInterval(() => {
-      fetchComments();
-    }, 5000);
-
     return () => {
       subscription.unsubscribe();
-      clearInterval(intervalId);
     };
   }, []);
 
@@ -81,7 +70,7 @@ function App() {
     try {
       const commentData = {
         comment: comment,
-        publish: false
+        publish: false,
       };
 
       await API.graphql(graphqlOperation(createComment, { input: commentData }));
@@ -89,50 +78,20 @@ function App() {
       console.error("Error submitting comment: ", err);
     }
   };
-  const deleteAllComments = async () => {
-  try {
-    const deletedComments = [];
 
-    for (let comment of allComments) {
-      const deleteData = {
-        id: comment.id,
-        _version: comment._version,
-      };
-      const result = await API.graphql(graphqlOperation(deleteComment, { input: deleteData }));
-      
-      // Log the result for debugging
-      console.log('Delete result:', result);
-
-      if (result.data.deleteComment) {
-        deletedComments.push(comment.id);
-      }
+  const signOut = async () => {
+    try {
+      await Auth.signOut();
+    } catch (error) {
+      console.log('Error signing out: ', error);
     }
+  };
 
-    // Log the deletedComments for debugging
-    console.log('Successfully deleted comments:', deletedComments);
-
-    // Remove deleted comments from state
-    setAllComments(prevComments => prevComments.filter(comment => !deletedComments.includes(comment.id)));
-  } catch (err) {
-    console.error("Error deleting comments: ", err);
-  }
-};
-
-const signOut = async () => {
-  try {
-    await Auth.signOut();
-  } catch (error) {
-    console.log('Error signing out: ', error);
-  }
-}; 
-  
   return (
     <div className="App">
-          <button onClick={signOut}>Sign Out</button>
-
+      <button onClick={signOut}>Sign Out</button>
       <h1>Broadcast</h1>
-      
-      {/* YouTube Video Player */}
+
       <YouTube
         videoId="RfvL_423a-I"
         opts={videoOptions}
@@ -142,18 +101,16 @@ const signOut = async () => {
       <input type="text" value={comment} onChange={handleInputChange} />
       <button onClick={submitComment}>Submit</button>
 
-
-      {/* <button onClick={deleteAllComments}>Delete All Comments</button> */}
-
       <h2>Comments:</h2>
       <ul>
         {allComments.map((item) => (
           <li key={item.id}>
-           <strong>{username}: </strong> {item.comment}
+            <strong>{new Date(item.createdAt).toLocaleString()}: </strong> {item.comment}
           </li>
         ))}
       </ul>
     </div>
   );
 }
+
 export default withAuthenticator(App);
