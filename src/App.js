@@ -61,6 +61,7 @@ function App() {
     }, 5000);
     return () => {
       subscription.unsubscribe();
+      clearInterval(intervalId);  // Clear the interval
     };
   }, []);
 
