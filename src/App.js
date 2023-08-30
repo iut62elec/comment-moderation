@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import YouTube from 'react-youtube';
+
 import { listComments } from './graphql/queries';
 import { createComment } from './graphql/mutations';
 import { onUpdateComment } from './graphql/subscriptions';
+import { deleteComment } from './graphql/mutations';
 
 import { Amplify, API, graphqlOperation } from "aws-amplify";
 import { Comment } from './models';
@@ -12,6 +15,14 @@ Amplify.configure(awsconfig);
 function App() {
   const [comment, setComment] = useState('');
   const [allComments, setAllComments] = useState([]);
+  // YouTube video options
+  const videoOptions = {
+    height: '390',
+    width: '640',
+    playerVars: {
+      autoplay: 1,
+    },
+  };
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -69,15 +80,53 @@ function App() {
       console.error("Error submitting comment: ", err);
     }
   };
+  const deleteAllComments = async () => {
+  try {
+    const deletedComments = [];
 
+    for (let comment of allComments) {
+      const deleteData = {
+        id: comment.id,
+        _version: comment._version,
+      };
+      const result = await API.graphql(graphqlOperation(deleteComment, { input: deleteData }));
+      
+      // Log the result for debugging
+      console.log('Delete result:', result);
+
+      if (result.data.deleteComment) {
+        deletedComments.push(comment.id);
+      }
+    }
+
+    // Log the deletedComments for debugging
+    console.log('Successfully deleted comments:', deletedComments);
+
+    // Remove deleted comments from state
+    setAllComments(prevComments => prevComments.filter(comment => !deletedComments.includes(comment.id)));
+  } catch (err) {
+    console.error("Error deleting comments: ", err);
+  }
+};
+
+  
+  
   return (
     <div className="App">
-      <h1>Video Broadcast</h1>
-      <div>Video Player</div>
+      <h1>Broadcast</h1>
+      
+      {/* YouTube Video Player */}
+      <YouTube
+        videoId="RfvL_423a-I"
+        opts={videoOptions}
+      />
 
       <h2>Submit comment:</h2>
       <input type="text" value={comment} onChange={handleInputChange} />
       <button onClick={submitComment}>Submit</button>
+
+
+      {/* <button onClick={deleteAllComments}>Delete All Comments</button> */}
 
       <h2>Comments:</h2>
       <ul>
