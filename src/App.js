@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-
 import YouTube from 'react-youtube';
 
 import { listComments } from './graphql/queries';
