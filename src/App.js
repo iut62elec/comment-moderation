@@ -56,7 +56,9 @@ function App() {
         }
       }
     });
-
+    const intervalId = setInterval(() => {
+      fetchComments();
+    }, 5000);
     return () => {
       subscription.unsubscribe();
     };
