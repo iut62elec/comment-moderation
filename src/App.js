@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+
 import YouTube from 'react-youtube';
 
 import { listComments } from './graphql/queries';
@@ -6,9 +7,10 @@ import { createComment } from './graphql/mutations';
 import { onUpdateComment } from './graphql/subscriptions';
 import { deleteComment } from './graphql/mutations';
 
-import { Amplify, API, graphqlOperation } from "aws-amplify";
+import { Amplify, API, graphqlOperation, Auth } from "aws-amplify";
 import { Comment } from './models';
 import awsconfig from './aws-exports';
+import { withAuthenticator, AmplifySignOut,AmplifyTheme } from '@aws-amplify/ui-react';
 
 Amplify.configure(awsconfig);
 
@@ -137,5 +139,4 @@ function App() {
     </div>
   );
 }
-
-export default App;
+export default withAuthenticator(App);

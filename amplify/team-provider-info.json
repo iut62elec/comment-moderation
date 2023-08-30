@@ -14,6 +14,12 @@
     "categories": {
       "function": {
         "CommentAnalyzer": {}
+      },
+      "auth": {
+        "commentmoderation43c375e8": {}
+      },
+      "api": {
+        "commentmoderation": {}
       }
     }
   }
