@@ -7,7 +7,7 @@ import { createComment } from './graphql/mutations';
 import { onUpdateComment } from './graphql/subscriptions';
 import { deleteComment } from './graphql/mutations';
 
-import { Amplify, API, graphqlOperation } from "aws-amplify";
+import { Amplify, API, graphqlOperation, Auth } from "aws-amplify";
 import { Comment } from './models';
 import awsconfig from './aws-exports';
 import { withAuthenticator } from '@aws-amplify/ui-react';
@@ -17,6 +17,8 @@ Amplify.configure(awsconfig);
 function App() {
   const [comment, setComment] = useState('');
   const [allComments, setAllComments] = useState([]);
+  const [username, setUsername] = useState('Unknown');
+
   // YouTube video options
   const videoOptions = {
     height: '390',
@@ -27,6 +29,12 @@ function App() {
   };
 
   useEffect(() => {
+    // Fetch the authenticated user's information
+  Auth.currentAuthenticatedUser()
+  .then(user => setUsername(user.username))
+  .catch(err => console.log("Not authenticated: ", err));
+
+
     const fetchComments = async () => {
       try {
         const commentsData = await API.graphql(graphqlOperation(listComments, {
@@ -111,10 +119,18 @@ function App() {
   }
 };
 
-  
+const signOut = async () => {
+  try {
+    await Auth.signOut();
+  } catch (error) {
+    console.log('Error signing out: ', error);
+  }
+}; 
   
   return (
     <div className="App">
+          <button onClick={signOut}>Sign Out</button>
+
       <h1>Broadcast</h1>
       
       {/* YouTube Video Player */}
@@ -133,7 +149,9 @@ function App() {
       <h2>Comments:</h2>
       <ul>
         {allComments.map((item) => (
-          <li key={item.id}>{item.comment}</li>
+          <li key={item.id}>
+           <strong>{username}: </strong> {item.comment}
+          </li>
         ))}
       </ul>
     </div>
