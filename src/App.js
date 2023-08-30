@@ -10,8 +10,8 @@ import { deleteComment } from './graphql/mutations';
 import { Amplify, API, graphqlOperation, Auth } from "aws-amplify";
 import { Comment } from './models';
 import awsconfig from './aws-exports';
-import { withAuthenticator, AmplifySignOut,AmplifyTheme } from '@aws-amplify/ui-react';
-
+import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
 Amplify.configure(awsconfig);
 
 function App() {
