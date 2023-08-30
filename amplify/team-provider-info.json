@@ -16,7 +16,8 @@
         "CommentAnalyzer": {}
       },
       "auth": {
-        "commentmoderation43c375e8": {}
+        "commentmoderation43c375e8": {},
+        "commentmoderation0f56c669": {}
       },
       "api": {
         "commentmoderation": {}
