@@ -19,6 +19,7 @@ function App() {
   const [allComments, setAllComments] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);  // <-- Add this line for current user
   const [currentUserEmail, setCurrentUserEmail] = useState('');  // <-- Add this line for the email
+  const [showAllComments, setShowAllComments] = useState(false); // <-- Add this state variable for the toggle
 
   // YouTube video options
   const videoOptions = {
@@ -54,21 +55,16 @@ function App() {
   useEffect(() => {
     Auth.currentAuthenticatedUser()
     .then(user => {
-      setCurrentUserEmail(user.attributes.email);  // <-- Save the email
+      setCurrentUserEmail(user.attributes.email);
     })
     .catch(err => console.log(err));
-
-
+  
     const fetchComments = async () => {
       try {
-        const commentsData = await API.graphql(graphqlOperation(listComments, {
-          filter: {
-            publish: {
-              eq: true
-            }
-          }
-        }));
-
+        const filterCondition = showAllComments ? {} : { filter: { publish: { eq: true } } };
+        
+        const commentsData = await API.graphql(graphqlOperation(listComments, filterCondition));
+  
         if (commentsData.data.listComments) {
           const sortedComments = commentsData.data.listComments.items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
           setAllComments(sortedComments);
@@ -77,8 +73,11 @@ function App() {
         console.error("Error fetching comments: ", err);
       }
     };
-
+  
     fetchComments();
+  
+  
+  
 
     const subscription = API.graphql(graphqlOperation(onUpdateComment)).subscribe({
       next: (eventData) => {
@@ -95,7 +94,7 @@ function App() {
       subscription.unsubscribe();
       clearInterval(intervalId);  // Clear the interval
     };
-  }, []);
+  }, [showAllComments]);
 
   const handleInputChange = (e) => {
     setComment(e.target.value);
@@ -153,16 +152,20 @@ function App() {
           Submit
         </button>
       </div>
-  
+      <label>
+        Show All Comments
+        <input type="checkbox" checked={showAllComments} onChange={() => setShowAllComments(!showAllComments)} />
+      </label>
+
       <div>
         <h2>Comments:</h2>
         <ul>
           {allComments.map((item) => (
-            <li key={item.id} style={{fontSize: '18px', margin: '10px 0'}}>
-              <span style={{fontWeight: 'bold'}}>
+            <li key={item.id} style={{...commentStyle, textDecoration: item.publish ? 'none' : 'line-through red'}}>
+              <span style={userNameStyle}>
                 {item.user ? item.user.split('@')[0] : 'Anonymous'}
               </span>
-              <span style={{fontStyle: 'italic', color: '#888'}}>
+              <span style={timestampStyle}>
                 {' - ' + new Date(item.createdAt).toLocaleString()}
               </span>
               <div>
@@ -174,7 +177,6 @@ function App() {
       </div>
     </div>
   );
-  
 }
 
 export default withAuthenticator(App);
