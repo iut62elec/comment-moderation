@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import YouTube from 'react-youtube';
 
-
 import { listComments } from './graphql/queries';
 import { createComment } from './graphql/mutations';
 import { onUpdateComment } from './graphql/subscriptions';
@@ -17,8 +16,6 @@ Amplify.configure(awsconfig);
 function App() {
   const [comment, setComment] = useState('');
   const [allComments, setAllComments] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);  // <-- Add this line for current user
-  const [currentUserEmail, setCurrentUserEmail] = useState('');  // <-- Add this line for the email
 
   // YouTube video options
   const videoOptions = {
@@ -28,37 +25,8 @@ function App() {
       autoplay: 1,
     },
   };
-  // App styles
-  const appStyle = {
-    fontFamily: 'Arial, sans-serif',
-    margin: '2rem',
-    textAlign: 'center',
-  };
-
-  const commentBoxStyle = {
-    padding: '1rem',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-    marginBottom: '1rem',
-  };
-
-  const buttonStyle = {
-    backgroundColor: '#007BFF',
-    color: '#FFF',
-    padding: '10px 20px',
-    borderRadius: '5px',
-    border: 'none',
-    cursor: 'pointer',
-  };
 
   useEffect(() => {
-    Auth.currentAuthenticatedUser()
-    .then(user => {
-      setCurrentUserEmail(user.attributes.email);  // <-- Save the email
-    })
-    .catch(err => console.log(err));
-
-
     const fetchComments = async () => {
       try {
         const commentsData = await API.graphql(graphqlOperation(listComments, {
@@ -106,8 +74,6 @@ function App() {
       const commentData = {
         comment: comment,
         publish: false,
-        user: currentUserEmail,
-
       };
 
       await API.graphql(graphqlOperation(createComment, { input: commentData }));
@@ -123,58 +89,31 @@ function App() {
       console.log('Error signing out: ', error);
     }
   };
-  const commentStyle = {
-    fontSize: '18px',  // Larger font size
-    margin: '10px 0',  // Add some margin to each comment
-  };
-  
-  const userNameStyle = {
-    fontWeight: 'bold',
-  };
-  
-  const timestampStyle = {
-    fontStyle: 'italic',
-    color: '#888',
-  };
-  
+
   return (
-    <div style={appStyle}>
-      <button style={buttonStyle} onClick={signOut}>
-        Sign Out
-      </button>
+    <div className="App">
+      <button onClick={signOut}>Sign Out</button>
       <h1>Broadcast</h1>
-  
-      <YouTube videoId="RfvL_423a-I" opts={videoOptions} />
-  
-      <div style={commentBoxStyle}>
-        <h2>Submit Comment:</h2>
-        <input type="text" value={comment} onChange={handleInputChange} />
-        <button style={buttonStyle} onClick={submitComment}>
-          Submit
-        </button>
-      </div>
-  
-      <div>
-        <h2>Comments:</h2>
-        <ul>
-          {allComments.map((item) => (
-            <li key={item.id} style={{fontSize: '18px', margin: '10px 0'}}>
-              <span style={{fontWeight: 'bold'}}>
-                {item.user ? item.user.split('@')[0] : 'Anonymous'}
-              </span>
-              <span style={{fontStyle: 'italic', color: '#888'}}>
-                {' - ' + new Date(item.createdAt).toLocaleString()}
-              </span>
-              <div>
-                {item.comment}
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+
+      <YouTube
+        videoId="RfvL_423a-I"
+        opts={videoOptions}
+      />
+
+      <h2>Submit comment:</h2>
+      <input type="text" value={comment} onChange={handleInputChange} />
+      <button onClick={submitComment}>Submit</button>
+
+      <h2>Comments:</h2>
+      <ul>
+        {allComments.map((item) => (
+          <li key={item.id}>
+            <strong>{new Date(item.createdAt).toLocaleString()}: </strong> {item.comment}
+          </li>
+        ))}
+      </ul>
     </div>
   );
-  
 }
 
 export default withAuthenticator(App);

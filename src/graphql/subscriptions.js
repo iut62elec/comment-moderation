@@ -7,6 +7,7 @@ export const onCreateComment = /* GraphQL */ `
       id
       comment
       publish
+      user
       createdAt
       updatedAt
       _version
@@ -22,6 +23,7 @@ export const onUpdateComment = /* GraphQL */ `
       id
       comment
       publish
+      user
       createdAt
       updatedAt
       _version
@@ -37,6 +39,7 @@ export const onDeleteComment = /* GraphQL */ `
       id
       comment
       publish
+      user
       createdAt
       updatedAt
       _version

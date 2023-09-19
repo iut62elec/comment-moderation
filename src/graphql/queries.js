@@ -7,6 +7,7 @@ export const getComment = /* GraphQL */ `
       id
       comment
       publish
+      user
       createdAt
       updatedAt
       _version
@@ -27,6 +28,7 @@ export const listComments = /* GraphQL */ `
         id
         comment
         publish
+        user
         createdAt
         updatedAt
         _version
@@ -57,6 +59,7 @@ export const syncComments = /* GraphQL */ `
         id
         comment
         publish
+        user
         createdAt
         updatedAt
         _version

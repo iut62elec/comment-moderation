@@ -32,9 +32,11 @@ export default function CommentUpdateForm(props) {
   const initialValues = {
     comment: "",
     publish: false,
+    user: "",
   };
   const [comment, setComment] = React.useState(initialValues.comment);
   const [publish, setPublish] = React.useState(initialValues.publish);
+  const [user, setUser] = React.useState(initialValues.user);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
     const cleanValues = commentRecord
@@ -42,6 +44,7 @@ export default function CommentUpdateForm(props) {
       : initialValues;
     setComment(cleanValues.comment);
     setPublish(cleanValues.publish);
+    setUser(cleanValues.user);
     setErrors({});
   };
   const [commentRecord, setCommentRecord] = React.useState(commentModelProp);
@@ -58,6 +61,7 @@ export default function CommentUpdateForm(props) {
   const validations = {
     comment: [],
     publish: [],
+    user: [],
   };
   const runValidationTasks = async (
     fieldName,
@@ -87,6 +91,7 @@ export default function CommentUpdateForm(props) {
         let modelFields = {
           comment,
           publish,
+          user,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -144,6 +149,7 @@ export default function CommentUpdateForm(props) {
             const modelFields = {
               comment: value,
               publish,
+              user,
             };
             const result = onChange(modelFields);
             value = result?.comment ?? value;
@@ -169,6 +175,7 @@ export default function CommentUpdateForm(props) {
             const modelFields = {
               comment,
               publish: value,
+              user,
             };
             const result = onChange(modelFields);
             value = result?.publish ?? value;
@@ -183,6 +190,32 @@ export default function CommentUpdateForm(props) {
         hasError={errors.publish?.hasError}
         {...getOverrideProps(overrides, "publish")}
       ></SwitchField>
+      <TextField
+        label="User"
+        isRequired={false}
+        isReadOnly={false}
+        value={user}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              comment,
+              publish,
+              user: value,
+            };
+            const result = onChange(modelFields);
+            value = result?.user ?? value;
+          }
+          if (errors.user?.hasError) {
+            runValidationTasks("user", value);
+          }
+          setUser(value);
+        }}
+        onBlur={() => runValidationTasks("user", user)}
+        errorMessage={errors.user?.errorMessage}
+        hasError={errors.user?.hasError}
+        {...getOverrideProps(overrides, "user")}
+      ></TextField>
       <Flex
         justifyContent="space-between"
         {...getOverrideProps(overrides, "CTAFlex")}

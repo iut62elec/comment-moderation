@@ -14,6 +14,7 @@ type EagerComment = {
   readonly id: string;
   readonly comment?: string | null;
   readonly publish?: boolean | null;
+  readonly user?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
 }
@@ -26,6 +27,7 @@ type LazyComment = {
   readonly id: string;
   readonly comment?: string | null;
   readonly publish?: boolean | null;
+  readonly user?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
 }
