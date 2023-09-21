@@ -5,6 +5,9 @@
   "dependencies": {
     "@aws-amplify/datastore": "^4.7.4",
     "@aws-amplify/ui-react": "^5.3.0",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.14.10",
     "aws-amplify": "^5.3.11",
     "axios": "^1.5.0",
     "react-scripts": "^5.0.1",

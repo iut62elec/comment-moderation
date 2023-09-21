@@ -18,6 +18,9 @@ import awsconfig from './aws-exports';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 
+import { Switch, Slider } from '@mui/material';
+
+
 Amplify.configure(awsconfig);
 
 function App() {
@@ -26,6 +29,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);  // <-- Add this line for current user
   const [currentUserEmail, setCurrentUserEmail] = useState('');  // <-- Add this line for the email
   const [showAllComments, setShowAllComments] = useState(false); // <-- Add this state variable for the toggle
+  const [sliderValue, setSliderValue] = useState(0);
 
   // YouTube video options
   const videoOptions = {
@@ -84,7 +88,8 @@ function App() {
     fetchComments();
   
   
-  
+    setSliderValue(allComments.length);  // Adjust the slider to the max value
+
 
     const subscription = API.graphql(graphqlOperation(onUpdateComment)).subscribe({
       next: (eventData) => {
@@ -101,7 +106,7 @@ function App() {
       subscription.unsubscribe();
       clearInterval(intervalId);  // Clear the interval
     };
-  }, [showAllComments]);
+  }, [showAllComments, allComments.length]);
 
   const handleInputChange = (e) => {
     setComment(e.target.value);
@@ -173,52 +178,66 @@ function App() {
     backgroundColor: '#F1F1F1',
     boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
   };
-  
+  const commentsContainerStyle = {
+    maxHeight: '300px',
+    overflowY: 'auto',
+    width: '80%',   // Adjust as per your requirement
+    borderRight: '1px solid #ccc',  // Optional: To visually separate comments from the right
+};
   return (
     <div style={appStyle}>
-      <NavBarHeader2_pedram signOut={signOut}/> {/* Pass the signOut function as a prop */}
-  
-      <YouTube videoId="LHCTW4pckDo" opts={videoOptions} />
-  
-      <div style={commentBoxStyle}>
-        <input 
-          type="text" 
-          value={comment} 
-          onChange={handleInputChange} 
-          placeholder="Your comment..."
-          style={elegantInputStyle}
-        />
-        <button style={elegantButtonStyle} onClick={submitComment}>
-          Submit
-        </button>
-      </div>
-  
-      <label>
-        Show All Comments
-        <input type="checkbox" checked={showAllComments} onChange={() => setShowAllComments(!showAllComments)} />
-      </label>
-  
-      <div>
-        {allComments.map((item) => (
-          <div key={item.id} style={elegantCommentCard}>
-            <div style={userNameStyle}>
-              {item.user ? item.user.split('@')[0] : 'Anonymous'}
-              <span style={timestampStyle}>
-                {' - ' + new Date(item.createdAt).toLocaleString()}
-              </span>
-            </div>
-            <div style={{
-              ...commentStyle, 
-              textDecoration: item.publish ? 'none' : 'line-through red' // Adding red line-through
-            }}>
-              {item.comment}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-  
+        <NavBarHeader2_pedram signOut={signOut} />
+
+        <YouTube videoId="LHCTW4pckDo" opts={videoOptions} />
+
+        <div style={commentBoxStyle}>
+            <input 
+                type="text" 
+                value={comment} 
+                onChange={handleInputChange} 
+                placeholder="Your comment..."
+                style={elegantInputStyle}
+            />
+            <button style={elegantButtonStyle} onClick={submitComment}>
+                Submit
+            </button>
+        </div>
+
+        <div>
+            Show All Comments
+            <Switch 
+                checked={showAllComments} 
+                onChange={() => setShowAllComments(!showAllComments)} 
+            />
+        </div>
+
+        {/* Flex container */}
+        <Flex direction="row" justifyContent="space-between" alignItems="flex-start" style={{ marginTop: '20px' }}>
+
+                {/* Comments Section */}
+                <View flexGrow={1} style={commentsContainerStyle}>
+                    {allComments.map((item) => (
+                        <div key={item.id} style={elegantCommentCard}>
+                            <div style={userNameStyle}>
+                                {item.user ? item.user.split('@')[0] : 'Anonymous'}
+                                <span style={timestampStyle}>
+                                    {' - ' + new Date(item.createdAt).toLocaleString()}
+                                </span>
+                            </div>
+                            <div style={{
+                                ...commentStyle, 
+                                textDecoration: item.publish ? 'none' : 'line-through red'
+                            }}>
+                                {item.comment}
+                            </div>
+                        </div>
+                    ))}
+                </View>
+
+            </Flex>
+
+        </div>
+    );
 }
 
 export default withAuthenticator(App);
