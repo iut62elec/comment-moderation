@@ -107,8 +107,8 @@ function App() {
 
   // YouTube video options
   const videoOptions = {
-    height: '480',
-    width: '860',
+    height: '580',
+    width: '960',
     playerVars: {
       autoplay: 1,
     },
@@ -123,7 +123,7 @@ function App() {
 };
   const commentBoxStyle = {
     padding: '1rem',
-    borderRadius: '5px',
+    borderRadius: '2px',
     // border: '1px solid #ccc',
     border: 'none',
     marginBottom: '1rem',
@@ -138,8 +138,8 @@ function App() {
     cursor: 'pointer',
   };
   const commentStyle = {
-    fontSize: '18px',  // Larger font size
-    margin: '10px 0',  // Add some margin to each comment
+    fontSize: '5px',  // Larger font size
+    margin: '1px 0',  // Add some margin to each comment
   };
   
   const userNameStyle = {
@@ -181,64 +181,93 @@ function App() {
     boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
   };
 
-  const commentsContainerStyle = {
-    width: '70%',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',  // Center each comment in this container
+  
+const scrollableCommentsStyle = {
+  maxHeight: '400px',
+  overflowY: 'auto',
+  width: '100%',
 };
+const mainContainerStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'flex-start',
+  maxWidth: '1200px', // you can adjust this as per your requirements
+  margin: '20px auto',
+  gap: '20px' // gives space between video and comments section
+};
+
+const videoContainerStyle = {
+  flex: 5, // takes 3 parts of the space
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+};
+
+const commentsContainerStyle = {
+  flex: 1, // takes 1 part of the space
+  maxHeight: '600px', // adjust as per your requirement
+  overflowY: 'auto',
+  width: '100%',
+  borderLeft: '0px solid #ccc', // if you want a line separator between video and comments
+};
+
+
 
 return (
   <div style={appStyle}>
-      <NavBarHeader2_pedram signOut={signOut} />
+    <NavBarHeader2_pedram signOut={signOut} />
 
-      <YouTube videoId="LHCTW4pckDo" opts={videoOptions} />
+    <div style={mainContainerStyle}>
+      {/* Video Section */}
+      <div style={videoContainerStyle}>
+        <YouTube videoId="LHCTW4pckDo" opts={videoOptions} />
 
-      <div style={{ margin: '20px 0', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ margin: '20px 0', display: 'flex', justifyContent: 'center' }}>
           <input 
-              type="text" 
-              value={comment} 
-              onChange={handleInputChange} 
-              placeholder="Your comment..."
-              style={elegantInputStyle}
+            type="text" 
+            value={comment} 
+            onChange={handleInputChange} 
+            placeholder="Your comment..."
+            style={elegantInputStyle}
           />
           <button style={elegantButtonStyle} onClick={submitComment}>
-              Submit
+            Submit
           </button>
-      </div>
+        </div>
 
-      <div style={{ marginBottom: '20px' }}>
+        <div style={{ marginBottom: '20px' }}>
           Show All Comments
           <Switch 
-              checked={showAllComments} 
-              onChange={() => setShowAllComments(!showAllComments)} 
+            checked={showAllComments} 
+            onChange={() => setShowAllComments(!showAllComments)} 
           />
+        </div>
       </div>
 
       {/* Comments Section */}
       <div style={commentsContainerStyle}>
-          {allComments.map((item) => (
-              <div key={item.id} style={elegantCommentCard}>
-                  <div style={{ fontWeight: 'bold' }}>
-                      {item.user ? item.user.split('@')[0] : 'Anonymous'}
-                      <span style={{ fontStyle: 'italic', color: '#888' }}>
-                          {' - ' + new Date(item.createdAt).toLocaleString()}
-                      </span>
-                  </div>
-                  <div style={{
-                      fontSize: '18px',
-                      margin: '10px 0',
-                      textDecoration: item.publish ? 'none' : 'line-through red'
-                  }}>
-                      {item.comment}
-                  </div>
-              </div>
-          ))}
+        {allComments.map((item) => (
+          <div key={item.id} style={elegantCommentCard}>
+            <div style={{ fontWeight: 'bold' }}>
+              {item.user ? item.user.split('@')[0] : 'Anonymous'}
+              <span style={{ fontStyle: 'italic', color: '#888' }}>
+                {' - ' + new Date(item.createdAt).toLocaleString()}
+              </span>
+            </div>
+            <div style={{
+              fontSize: '18px',
+              margin: '10px 0',
+              textDecoration: item.publish ? 'none' : 'line-through red'
+            }}>
+              {item.comment}
+            </div>
+          </div>
+        ))}
       </div>
+    </div>
   </div>
 );
 }
-
 export default withAuthenticator(App);
 
 
