@@ -107,7 +107,7 @@ function App() {
 
   // YouTube video options
   const videoOptions = {
-    height: '580',
+    height: '680',
     width: '960',
     playerVars: {
       autoplay: 1,
@@ -183,17 +183,17 @@ function App() {
 
   
 const scrollableCommentsStyle = {
-  maxHeight: '400px',
+  maxHeight: '1000px',
   overflowY: 'auto',
-  width: '100%',
+  width: '150%',
 };
 const mainContainerStyle = {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'flex-start',
-  maxWidth: '1200px', // you can adjust this as per your requirements
-  margin: '20px auto',
-  gap: '20px' // gives space between video and comments section
+  maxWidth: '1500px', // you can adjust this as per your requirements
+  margin: '10px auto',
+  gap: '10px' // gives space between video and comments section
 };
 
 const videoContainerStyle = {
@@ -205,7 +205,7 @@ const videoContainerStyle = {
 
 const commentsContainerStyle = {
   flex: 1, // takes 1 part of the space
-  maxHeight: '600px', // adjust as per your requirement
+  maxHeight: '680px', // adjust as per your requirement
   overflowY: 'auto',
   width: '100%',
   borderLeft: '0px solid #ccc', // if you want a line separator between video and comments
