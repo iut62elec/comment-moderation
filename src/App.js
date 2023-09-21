@@ -31,37 +31,7 @@ function App() {
   const [showAllComments, setShowAllComments] = useState(false); // <-- Add this state variable for the toggle
   const [sliderValue, setSliderValue] = useState(0);
 
-  // YouTube video options
-  const videoOptions = {
-    height: '390',
-    width: '640',
-    playerVars: {
-      autoplay: 1,
-    },
-  };
-  // App styles
-  const appStyle = {
-    fontFamily: 'Arial, sans-serif',
-    margin: '2rem',
-    textAlign: 'center',
-  };
-
-  const commentBoxStyle = {
-    padding: '1rem',
-    borderRadius: '5px',
-    // border: '1px solid #ccc',
-    border: 'none',
-    marginBottom: '1rem',
-  };
-
-  const buttonStyle = {
-    backgroundColor: '#007BFF',
-    color: '#FFF',
-    padding: '10px 20px',
-    borderRadius: '5px',
-    border: 'none',
-    cursor: 'pointer',
-  };
+  
 
   useEffect(() => {
     Auth.currentAuthenticatedUser()
@@ -134,6 +104,39 @@ function App() {
       console.log('Error signing out: ', error);
     }
   };
+
+  // YouTube video options
+  const videoOptions = {
+    height: '480',
+    width: '860',
+    playerVars: {
+      autoplay: 1,
+    },
+  };
+
+  const appStyle = {
+    fontFamily: 'Arial, sans-serif',
+    margin: '2rem',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',   // Center items horizontally in the container
+};
+  const commentBoxStyle = {
+    padding: '1rem',
+    borderRadius: '5px',
+    // border: '1px solid #ccc',
+    border: 'none',
+    marginBottom: '1rem',
+  };
+
+  const buttonStyle = {
+    backgroundColor: '#007BFF',
+    color: '#FFF',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    border: 'none',
+    cursor: 'pointer',
+  };
   const commentStyle = {
     fontSize: '18px',  // Larger font size
     margin: '10px 0',  // Add some margin to each comment
@@ -161,7 +164,6 @@ function App() {
       backgroundColor: '#555555',
     }
   };
-  
   const elegantInputStyle = {
     padding: '12px 24px',
     fontSize: '16px',
@@ -170,7 +172,7 @@ function App() {
     width: '60%',
     marginRight: '16px'
   };
-  
+
   const elegantCommentCard = {
     padding: '16px',
     margin: '16px 0',
@@ -178,66 +180,65 @@ function App() {
     backgroundColor: '#F1F1F1',
     boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
   };
+
   const commentsContainerStyle = {
-    maxHeight: '300px',
-    overflowY: 'auto',
-    width: '80%',   // Adjust as per your requirement
-    borderRight: '1px solid #ccc',  // Optional: To visually separate comments from the right
+    width: '70%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',  // Center each comment in this container
 };
-  return (
-    <div style={appStyle}>
-        <NavBarHeader2_pedram signOut={signOut} />
 
-        <YouTube videoId="LHCTW4pckDo" opts={videoOptions} />
+return (
+  <div style={appStyle}>
+      <NavBarHeader2_pedram signOut={signOut} />
 
-        <div style={commentBoxStyle}>
-            <input 
-                type="text" 
-                value={comment} 
-                onChange={handleInputChange} 
-                placeholder="Your comment..."
-                style={elegantInputStyle}
-            />
-            <button style={elegantButtonStyle} onClick={submitComment}>
-                Submit
-            </button>
-        </div>
+      <YouTube videoId="LHCTW4pckDo" opts={videoOptions} />
 
-        <div>
-            Show All Comments
-            <Switch 
-                checked={showAllComments} 
-                onChange={() => setShowAllComments(!showAllComments)} 
-            />
-        </div>
+      <div style={{ margin: '20px 0', display: 'flex', justifyContent: 'center' }}>
+          <input 
+              type="text" 
+              value={comment} 
+              onChange={handleInputChange} 
+              placeholder="Your comment..."
+              style={elegantInputStyle}
+          />
+          <button style={elegantButtonStyle} onClick={submitComment}>
+              Submit
+          </button>
+      </div>
 
-        {/* Flex container */}
-        <Flex direction="row" justifyContent="space-between" alignItems="flex-start" style={{ marginTop: '20px' }}>
+      <div style={{ marginBottom: '20px' }}>
+          Show All Comments
+          <Switch 
+              checked={showAllComments} 
+              onChange={() => setShowAllComments(!showAllComments)} 
+          />
+      </div>
 
-                {/* Comments Section */}
-                <View flexGrow={1} style={commentsContainerStyle}>
-                    {allComments.map((item) => (
-                        <div key={item.id} style={elegantCommentCard}>
-                            <div style={userNameStyle}>
-                                {item.user ? item.user.split('@')[0] : 'Anonymous'}
-                                <span style={timestampStyle}>
-                                    {' - ' + new Date(item.createdAt).toLocaleString()}
-                                </span>
-                            </div>
-                            <div style={{
-                                ...commentStyle, 
-                                textDecoration: item.publish ? 'none' : 'line-through red'
-                            }}>
-                                {item.comment}
-                            </div>
-                        </div>
-                    ))}
-                </View>
-
-            </Flex>
-
-        </div>
-    );
+      {/* Comments Section */}
+      <div style={commentsContainerStyle}>
+          {allComments.map((item) => (
+              <div key={item.id} style={elegantCommentCard}>
+                  <div style={{ fontWeight: 'bold' }}>
+                      {item.user ? item.user.split('@')[0] : 'Anonymous'}
+                      <span style={{ fontStyle: 'italic', color: '#888' }}>
+                          {' - ' + new Date(item.createdAt).toLocaleString()}
+                      </span>
+                  </div>
+                  <div style={{
+                      fontSize: '18px',
+                      margin: '10px 0',
+                      textDecoration: item.publish ? 'none' : 'line-through red'
+                  }}>
+                      {item.comment}
+                  </div>
+              </div>
+          ))}
+      </div>
+  </div>
+);
 }
 
 export default withAuthenticator(App);
+
+
