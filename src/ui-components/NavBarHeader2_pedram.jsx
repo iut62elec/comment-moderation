@@ -96,8 +96,8 @@ export default function NavBarHeader2(props) {
           position="relative"
           padding="0px 0px 0px 0px"
           whiteSpace="pre-wrap"
-          children="Broadcast"
-          {...getOverrideProps(overrides, "Broadcast")}
+          children="Live at the Met Gala With Vogue          "
+          {...getOverrideProps(overrides, "Live at the Met Gala With Vogue")}
         ></Text>
         {/* <Text
           fontFamily="Inter"
